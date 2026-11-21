@@ -28,7 +28,8 @@ jobs:
         uses: actions/checkout@v4
       - name: 2.setup python
         uses: actions/setup-python@v5
-        with: python-version: '3.11'
+        with: |
+          python-version: '3.11'
       - name: 3.install
         run: pip install --no-cache-dir -r requirements.txt
       - name: 4.bikin tabel
@@ -47,12 +48,13 @@ jobs:
           );"
       - name: jalanin API + test curl
         env:
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_NAME:  ${{ secrets.DB_NAME }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        python app.py &
-        sleep 5
-        curl -f http://localhost:9000/lihat
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_NAME:  ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          python app.py &
+          sleep 5
+          curl -f http://localhost:9000/lihat
       - name: test build docker
         run: docker build -t richval-api . 
