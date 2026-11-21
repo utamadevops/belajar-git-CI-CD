@@ -1,10 +1,9 @@
 name: CD Richval
 
 on:
-  push:
     branches: [ main ]
-    workflows_run:
-    workflow: ["CI - Test Api Richval"]
+    workflow_run:
+    workflows: ["CI - Test Api Richval"]
     types: [completed]
 
 jobs:
@@ -17,12 +16,3 @@ jobs:
       - name: deploy ke server
         run: |
           echo "deploy jalan, ci udah lolos"
-      - name: deploy via ssh
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{secrets.SSH_KEY }}
-          port: ${{secrets.SSH_PORT }}
-          script: |
-            echo "cd jalan, ci lolos"
