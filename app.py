@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request,jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
@@ -8,13 +8,13 @@ app = Flask(__name__)
 def get_db():
     return psycopg2.connect(
         host=os.getenv("DB_HOST", "localhost"),
-        database=os.getenv("DB_NAME", "toko_val"),
-        user=os.getenv("DB_USER","richval"),
-        password=os.getenv("DB_PASSWORD", "12345")
+        user=os.getenv("DB_USER", "richval"),
+        database=os.getenv("DB_NAME", "latihan_final"),
+        password=os.getenv("DB_PASSWORD", "richval1430")
     )
 
 @app.route("/health", methods=["GET"])
-def healt_check():
+def health():
     try:
         conn = get_db()
         cur = conn.cursor()
@@ -25,74 +25,71 @@ def healt_check():
         conn.close()
         return jsonify({"status": "OK"}), 200
     except Exception as e:
-        return jsonify({"status": "DOWN", "detail": str(e)}), 500
-@app.route("/nambah/<nama>/<harga>/<stok>/<kategori>", methods=["POST"])
-def nambah(nama, harga, stok, kategori):
-    harga = int(harga)
-    stok = int(stok)
-    if harga <= 0:
-        return jsonify({"message:", f"{harga} tidak boleh kosong"}), 200
-    if stok < 0:
-        return jsonify({"message", f"{stok} gak boleh minus"}), 200
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO produk (nama, harga, stok, kategori) VALUES (%s, %s, %s, %s)",
-        (nama, harga, stok, kategori)
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({"message": f"{nama}, {harga}, {stok}, {kategori}, berhasil ditambahkan."}), 201
-
+        return jsonify({"error": str(e)}), 500
 @app.route("/lihat", methods=["GET"])
 def lihat():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "SELECT nama, harga, stok, kategori FROM produk;"
+        "SELECT nama, harga, stok FROM produk"
     )
     data = cur.fetchall()
     cur.close()
     conn.close()
     return jsonify({
-        "message": "menampilkan daftar produk",
+        "message": "menampilkan produk",
         "total": len(data),
         "data": data
     }), 200
-
-@app.route("/buat/<nama_produk>/<harga_baru>", methods=["PUT"])
-def buat(nama_produk, harga_baru):
-    harga_baru = int(harga_baru)
+@app.route("/tambah_produk/<nama>/<harga>/<stok>", methods=["POST"])
+def tambah(nama, harga, stok):
+    harga=int(harga)
+    stok=int(stok)
+    if harga <= 0:
+        return jsonify({"message": f"{harga} tidak boleh kosong"}), 200
+    if stok <= 0:
+        return jsonify({"message": f"{stok} tidak boleh kosong"})
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE produk SET harga=%s WHERE nama = %s",
-        (harga_baru, nama_produk)
+        "INSERT INTO produk (nama, harga, stok) VALUES (%s, %s, %s)",
+        (nama,harga,stok)
     )
-    baru = cur.rowcount
     conn.commit()
     cur.close()
     conn.close()
-    if baru > 0:
-        return jsonify({"message": f"{nama_produk} berhasil diubah, harga sekarang{harga_baru}"}), 201
-    return jsonify ({"message": "produk tidak ditemuka"}), 404
-
-@app.route("/hapus/<nama_produk>", methods=["DELETE"])
-def hapus(nama_produk,):
+    return jsonify({"message": f"{nama}, {harga}, {stok} berhasil ditambahkan"})
+@app.route("/update/<int:id>", methods={"PUT"})
+def update_produk(id):
+    data = request.get_json()
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "DELETE FROM produk WHERE nama = %s",
-        (nama_produk,)
+        "UPDATE produk SET nama=%s, harga=%s, stok=%s WHERE id=%s RETURNING *",
+        (data.get("nama"), data.get("harga"), data.get("stok"), id)
     )
-    hapus_apa = cur.rowcount
+    row = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
-    if hapus_apa > 0:
-        return jsonify({"message": f"{nama_produk} berhasil dihapus"}), 200
-    return jsonify({"message": "nama produk tidak ada"}), 404
-
+    if not row:
+        return jsonify({"error": "produk tidak ditemukan"}), 404
+    return jsonify(row)
+@app.route("/delete/<int:id>", methods=["DELETE"])
+def hapus_produk(id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "DELETE FROM produk WHERE id=%s RETURNING *", (id,)
+    )
+    row = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    if not row:
+        return jsonify({"error": "produk tidak ditemukan"}), 404
+    return jsonify({"message": "produk berhasil dihapus"}), 200
+ 
+    
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port= 8000, debug=True)
+    app.run(host= "0.0.0.0", port= 9000, debug=True)

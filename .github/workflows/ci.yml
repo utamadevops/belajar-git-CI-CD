@@ -1,66 +1,58 @@
-name: CI - Test API Richval
+nama: CI - Test Api Richval
+
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branch: [ main ]
 
 jobs:
-  test-api:
+  test:
     runs-on: ubuntu-latest
 
-    services:
+    service:
       db:
-        image: postgres:15
-        env:
-          POSTGRES_USER: richval
-          POSTGRES_PASSWORD: rahasia123
-          POSTGRES_DB: toko_val
+        image: postgres:16
+        environtment:
+          - POSTGRES_USER: richval
+          - POSTGRES_DB: latihan_final
+          - POSTGRES_PASSWORD: richval1430
         ports:
-          - 5432:5432
+          5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
-    steps:
-      - name: 1. Ambil Codingan dari GitHub
-        uses: actions/checkout@v4
-
-      - name: 2. Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 3. Install Kebutuhan Flask
-        run: |
-          pip install -r requirements.txt
-
-      - name: 4. Bikin Tabel di DB GitHub
+        
+      steps:
+      - name: 1.ambil kodingan
+      - uses: actions/checkout@v5
+      - name: 2.setup python
+      - uses: actions/python@v4
+        with: python:3.11-slim
+      - name: 3.install
+        run: pip install --no-cache-dir -r requirements.txt
+      - name: 4.bikin tabel
         env:
-          PGPASSWORD: rahasia123
+        DB_HOST: localhost
+        DB_USER: richval
+        DB_NAME: latihan_final
+        DB_PASSWORD: richval1430
         run: |
-          psql -h localhost -U richval -d toko_val -c "
-          CREATE TABLE IF NOT EXISTS produk (
-            id SERIAL PRIMARY KEY,
-            nama VARCHAR(100),
-            harga INT,
-            kategori VARCHAR(50),
-            stok FLOAT
-          );"
-
-      - name: 5. Jalanin API-nya
+        PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c"
+        CREATE TABLE IF NOT EXISTS produk (
+        id SERIAL PRIMARY KEY,
+        nama VARCHAR(100),
+        harga INTEGER,
+        stok INTEGER
+        );"
+      - name: jalanin API + test curl
         env:
-          DB_HOST: localhost
-          DB_USER: richval
-          DB_PASSWORD: rahasia123
-          DB_NAME: toko_val
-        run: |
-          nohup python app.py &
-          sleep 5
-          curl http://localhost:8000/lihat
-
-      - name: 6. Test Docker Build (Bukti Dockerfile lu bener)
-        run: |
-          docker build -t api-richval .
+        DB_HOST: localhost
+        DB_USER: richval
+        DB_NAME: latihan_final
+        DB_PASSWORD: richval1430
+        python app.py &
+        sleep 5
+        curl http://localhost:9000/produk
+      - name: test build docker
+        run: docker build -t richval_api . 
