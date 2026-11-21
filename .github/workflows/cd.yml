@@ -6,24 +6,23 @@ on:
     workflows_run:
     workflow: ["CI - Test Api Richval"]
     types: [completed]
-    branches: [main]
 
 jobs:
   deploy:
-  if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  runs-on: ubuntu-latest
-  steps:
-    - name: checkout
-      uses: actions/checkout@v4
-    - name: deploy ke server
-      run: |
-        echo "deploy jalan, ci udah lolos"
-    - name: deploy via ssh
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{secrets.SSH_KEY }}
-        port: ${{secrets.SSH_PORT }}
-        script: |
-          echo "cd jalan, ci lolos"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: deploy ke server
+        run: |
+          echo "deploy jalan, ci udah lolos"
+      - name: deploy via ssh
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{secrets.SSH_KEY }}
+          port: ${{secrets.SSH_PORT }}
+          script: |
+            echo "cd jalan, ci lolos"
