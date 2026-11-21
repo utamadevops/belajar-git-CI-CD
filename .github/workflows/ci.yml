@@ -12,9 +12,9 @@ jobs:
       db:
         image: postgres:16
         environtment:
-          - POSTGRES_USER: richval
-          - POSTGRES_DB: latihan_final
-          - POSTGRES_PASSWORD: richval1430
+          - POSTGRES_USER: ${{ secrets.DB_USER }}
+          - POSTGRES_DB: ${{ secrets.DB_NAME }}
+          - POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           5432:5432
         options: >-
@@ -24,19 +24,19 @@ jobs:
           --health-retries 5
         
       steps:
-      - name: 1.ambil kodingan
-      - uses: actions/checkout@v5
+      - name: 1.ambil kodingan 
+        uses: actions/checkout@v5
       - name: 2.setup python
-      - uses: actions/python@v4
+        uses: actions/python@v4
         with: python:3.11-slim
       - name: 3.install
         run: pip install --no-cache-dir -r requirements.txt
       - name: 4.bikin tabel
         env:
-        DB_HOST: localhost
-        DB_USER: richval
-        DB_NAME: latihan_final
-        DB_PASSWORD: richval1430
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
         PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c"
         CREATE TABLE IF NOT EXISTS produk (
@@ -47,12 +47,12 @@ jobs:
         );"
       - name: jalanin API + test curl
         env:
-        DB_HOST: localhost
-        DB_USER: richval
-        DB_NAME: latihan_final
-        DB_PASSWORD: richval1430
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_NAME:  ${{ secrets.DB_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         python app.py &
         sleep 5
-        curl http://localhost:9000/produk
+        curl -f http://localhost:9000/lihat
       - name: test build docker
         run: docker build -t richval_api . 
