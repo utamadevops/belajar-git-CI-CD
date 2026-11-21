@@ -29,9 +29,10 @@ jobs:
            - name: 2.setup python
              uses: actions/setup-python@v5
              with: 
-             python-version: '3.11'
+               python-version: "3.11"
            - name: 3.install
-             run: pip install --no-cache-dir -r requirements.txt
+             run: | 
+               pip install --no-cache-dir -r requirements.txt
            - name: 4.bikin tabel
              env:
                 DB_HOST: ${{ secrets.DB_HOST }}
