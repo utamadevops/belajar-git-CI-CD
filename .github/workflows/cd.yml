@@ -1,8 +1,7 @@
-name: CD Richval
+name: CD-Richval
 
 on:
-    branches: [ main ]
-    workflow_run:
+  workflow_run:
     workflows: ["CI - Test Api Richval"]
     types: [completed]
 
