@@ -8,7 +8,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    service:
+    services:
       db:
         image: postgres:16
         environtment:
@@ -25,10 +25,10 @@ jobs:
         
       steps:
       - name: 1.ambil kodingan 
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       - name: 2.setup python
-        uses: actions/python@v4
-        with: python:3.11-slim
+        uses: actions/setup-python@v5
+        with: python-version: '3.11'
       - name: 3.install
         run: pip install --no-cache-dir -r requirements.txt
       - name: 4.bikin tabel
@@ -38,13 +38,13 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-        PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c"
-        CREATE TABLE IF NOT EXISTS produk (
-        id SERIAL PRIMARY KEY,
-        nama VARCHAR(100),
-        harga INTEGER,
-        stok INTEGER
-        );"
+          PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c"
+          CREATE TABLE IF NOT EXISTS produk (
+          id SERIAL PRIMARY KEY,
+          nama VARCHAR(100),
+          harga INTEGER,
+          stok INTEGER
+          );"
       - name: jalanin API + test curl
         env:
         DB_HOST: ${{ secrets.DB_HOST }}
@@ -55,4 +55,4 @@ jobs:
         sleep 5
         curl -f http://localhost:9000/lihat
       - name: test build docker
-        run: docker build -t richval_api . 
+        run: docker build -t richval-api . 
