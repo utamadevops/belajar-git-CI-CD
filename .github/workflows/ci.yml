@@ -12,6 +12,11 @@ jobs:
         uses: actions/checkout@v4
       - name: nyalain semuanya pake docker compose
         run: docker compose up -d --build
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_HOST: ${{ secrets.DB_HOST }}
       - name: tunggu DB siap
         run: sleep 10
       - name: test API
