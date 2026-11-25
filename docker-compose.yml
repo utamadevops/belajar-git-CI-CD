@@ -1,35 +1,33 @@
 services:
-  db: 
+  db:
     image: postgres:16
     container_name: rival
     restart: unless-stopped
     environment:
-       - POSTGRES_USER=${POSTGRES_USER}
-       - POSTGRES_DB=${POSTGRES_DB}
-       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
-       test: ["CMD-SHELL", "pg_isready -U richval -d latihan_final"]
+       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
        interval: 10s
        timeout: 5s
        retries: 5
- 
-
   api:
-    build: .
-    container_name: API-rival
+    build: . 
+    container_name: richval
     restart: unless-stopped
     ports: 
-      - "9000:9000"
+      - "8000:8000"
     environment:
       - DB_HOST=${DB_HOST}
-      - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
       db:
         condition: service_healthy

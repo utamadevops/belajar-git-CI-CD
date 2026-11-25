@@ -1,8 +1,12 @@
-CREATE TABLE IF NOT EXISTS produk (
+CREATE TABLE IF NOT EXISTS cameras (
     id SERIAL PRIMARY KEY,
-    nama VARCHAR(100),
-    harga INT,
-    stok INT
+    brand VARCHAR(50),
+    model VARCHAR(50),
+    price_per_day INTEGER,
+    is_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO richval;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public  TO richval;
+INSERT INTO cameras (brand, model, price_per_day) VALUES
+('sony', 'A6400', 150000),
+('canon', 'M50', 120000),
+('fujifilm', 'EOS', 18000);

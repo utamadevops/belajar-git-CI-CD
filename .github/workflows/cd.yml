@@ -1,8 +1,7 @@
-name: CD-Richval
-
+name: CD richval
 on:
   workflow_run:
-    workflows: ["CI - Test Api Richval"]
+    workflows: ["CI - richval-Docker-compose"]
     types: [completed]
 
 jobs:
@@ -14,4 +13,4 @@ jobs:
         uses: actions/checkout@v4
       - name: deploy ke server
         run: |
-          echo "deploy jalan, ci udah lolos"
+          echo "deploy jalan,ci udah lolos"
